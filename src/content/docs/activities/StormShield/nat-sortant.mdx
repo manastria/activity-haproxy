@@ -1,0 +1,56 @@
+---
+title: "NAT Sortant (SNAT / Masquerading)"
+description: "Guide pour configurer une règle de NAT sortant (SNAT) sur un pare-feu Stormshield SNS afin de permettre l'accès à Internet."
+---
+
+import { Card, Steps, Aside } from '@astrojs/starlight/components';
+
+<Card title="🎯 Objectif">
+Permettre aux postes d’un réseau interne d’accéder à un réseau externe (comme Internet) en utilisant l’adresse IP publique du pare-feu. Le pare-feu « masque » l’adresse IP source privée et la remplace par sa propre adresse publique.
+</Card>
+
+## Configuration pas à pas
+
+<Steps>
+1.  **Accéder à la Politique de Filtrage**
+    Rendez-vous dans le menu `Configuration > Politique de sécurité > Filtrage et NAT`.
+
+2.  **Ouvrir l'onglet NAT**
+    Sélectionnez l'onglet **`NAT`** pour accéder aux règles de traduction d'adresses.
+
+3.  **Créer une Règle de Masquerading**
+    Cliquez sur **`+ Nouvelle règle`** et choisissez **`règle de partage d'adresse source (masquerading)`**. L'assistant préconfigure la règle pour ce cas d'usage précis.
+
+4.  **Configurer la Règle**
+    Une nouvelle ligne de règle apparaît. Double-cliquez dessus pour ouvrir la fenêtre de configuration.
+
+    -   **Trafic Original (Avant traduction) :**
+        -   **Source originale :** Définissez le réseau interne autorisé à sortir. Utilisez l'objet `Network_internals` pour autoriser tous les réseaux internes.
+        -   **Destination originale :** Pour un accès à Internet, utilisez l'objet `Internet`.
+        -   **Port destination :** Laissez `Any` pour tous les services.
+
+    -   **Trafic Après Translation (Après traduction) :**
+        -   **Source translatée :** Indiquez l'adresse IP qui sera vue de l'extérieur. Sélectionnez l'objet de votre interface de sortie, généralement `Firewall_out`.
+        -   **Port source translaté :** L'assistant a automatiquement sélectionné `ephemeral_fw`. Conservez ce paramètre.
+
+    <Aside type="tip" title="Astuce sécurité">
+    Dans l'onglet `Source translatée`, cochez l'option "**choisir aléatoirement le port source translaté**" pour rendre le suivi des connexions depuis l'extérieur plus complexe.
+    </Aside>
+
+5.  **Activer le Traçage (Débogage)**
+    Dans la fenêtre d'édition de la règle, allez dans l'onglet **`Options`**.
+    Pour le **Niveau de trace**, sélectionnez **`tracer`**.
+
+    <Aside type="note">
+    Sans cette option, vous ne verrez aucune information sur l'application de cette règle dans les journaux, ce qui rend le diagnostic très difficile.
+    </Aside>
+
+6.  **Activer et Appliquer**
+    -   Cliquez sur **`OK`** pour enregistrer la règle.
+    -   Activez la règle en cliquant sur son état pour le passer à **`on`**.
+    -   Cliquez sur le bouton **`Appliquer`** en haut de la page pour que la politique soit prise en compte par le pare-feu.
+</Steps>
+
+## ✅ Vérification
+
+Depuis un poste client situé dans le réseau source, tentez d'accéder à un site Internet. La connexion doit s'établir. Vous pouvez ensuite vérifier dans les journaux (`Monitoring > Logs - Journaux d'audit > Trafic réseau`) que votre règle de NAT a bien été appliquée.

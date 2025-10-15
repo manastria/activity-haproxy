@@ -2,13 +2,13 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
     inputs:
       branch:
         description: "Select the branch to deploy"
         required: true
-        default: "main"
+        default: "master"
         type: string
 
 permissions:

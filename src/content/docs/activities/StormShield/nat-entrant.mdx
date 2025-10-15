@@ -1,0 +1,63 @@
+---
+title: "NAT Entrant (DNAT / Redirection de Port)"
+description: "Guide pour configurer une règle de NAT entrant (DNAT) sur Stormshield SNS et rendre un service interne accessible depuis l'extérieur."
+---
+
+import { Card, Steps, Aside } from '@astrojs/starlight/components';
+
+<Card title="🎯 Objectif">
+Rendre un service hébergé sur un serveur interne (ex: un serveur web) accessible depuis l'extérieur via une adresse IP publique. Le pare-feu redirige le trafic entrant vers le bon serveur sur le réseau local.
+</Card>
+
+## Configuration pas à pas
+
+<Steps>
+1.  **Accéder à la Politique de Filtrage**
+    Rendez-vous dans `Configuration > Politique de sécurité > Filtrage et NAT`.
+
+2.  **Ouvrir l'onglet NAT**
+    Sélectionnez l'onglet **`NAT`**.
+
+3.  **Créer une Nouvelle Règle Simple**
+    Cliquez sur **`+ Nouvelle règle`** et choisissez **`règle simple`**.
+
+4.  **Configurer la Règle NAT**
+    Double-cliquez sur la nouvelle règle pour l'éditer.
+
+    -   **Trafic Original (Ce qui arrive sur le pare-feu) :**
+        -   **Source originale :** Qui a le droit de se connecter ? Pour un service public, utilisez `Internet`.
+        -   **Destination originale :** Quelle est l'adresse publique visée ? Il s'agit le plus souvent de l'interface externe du pare-feu (`Firewall_out`).
+        -   **Port destination :** Quel est le port public contacté ? (ex: `http` pour un serveur web).
+
+    -   **Trafic Après Translation (Où le trafic est redirigé) :**
+        -   **Source translatée :** Laissez la valeur par défaut. La source ne change pas.
+        -   **Destination translatée :** C'est le serveur interne. Sélectionnez l'objet machine correspondant (ex: `srv_web_priv`).
+        -   **Port destination translaté :** C'est le port d'écoute sur le serveur interne. S'il est identique au port public, laissez `none`. Sinon, spécifiez le port de destination interne ici.
+
+5.  **Activer le Traçage**
+    Dans l'onglet **`Options`**, mettez le **Niveau de trace** sur **`tracer`**.
+
+6.  **Activer la Règle NAT**
+    Cliquez sur **`OK`**, puis passez l'état de la règle à **`on`**. Ne cliquez pas encore sur "Appliquer".
+
+7.  **Créer la Règle de Filtrage**
+
+    <Aside type="danger" title="CRUCIAL : N'oubliez pas la Règle de Filtrage !">
+    Une règle de NAT ne fait que **traduire** les adresses, elle n'**autorise** pas le flux. Vous devez impérativement créer une règle de filtrage pour permettre à la connexion de passer.
+    </Aside>
+
+    -   Allez dans l'onglet **`FILTRAGE`**.
+    -   Créez une nouvelle règle avec l'action **`passer`**.
+    -   Configurez cette règle avec les paramètres du **trafic original** de votre règle NAT :
+        -   **Source :** `Internet`
+        -   **Destination :** `Firewall_out`
+        -   **Port dest. :** `http` (ou le service concerné)
+    -   Passez l'état de cette règle de filtrage à **`on`**.
+
+8.  **Appliquer la Politique**
+    Maintenant que vos deux règles (NAT et Filtrage) sont actives, cliquez sur le bouton **`Appliquer`** pour les rendre effectives.
+</Steps>
+
+## ✅ Vérification
+
+Depuis un poste client externe, tentez d'accéder au service en utilisant l'adresse IP publique et le port public configurés. La connexion doit être redirigée vers votre serveur interne et la page ou le service doit s'afficher.

@@ -7,6 +7,11 @@ dist/
 .output/
 .astro/
 
+draft/
+
 # Editor
 #.vscode/
 #.idea/
+.stfolder/syncthing-folder-f550b4.txt
+.stignore
+ia.md

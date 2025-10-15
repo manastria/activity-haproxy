@@ -1,67 +1,43 @@
-# Template Astro/Starlight — Activités pédagogiques
+# Activity HAProxy Docs
 
-Ce dépôt est un **starter** prêt à l'emploi pour publier des activités pédagogiques avec **Astro + Starlight**.
+- Documentation Astro : <https://docs.astro.build/en/getting-started/>
+- Documentation Starlight : <https://starlight.astro.build/>
 
-- Pages au format **Markdown/MDX** sous `src/content/docs/`
-- Section **Activités** auto‑générée depuis `src/content/docs/activities/`
-- Script **`npm run new`** pour créer une activité à partir d’un modèle
-- Déploiement **GitHub Pages** (workflow fourni)
-- Déploiement **Infomaniak** via SFTP/SSH (workflow fourni, à activer)
+## Developpement local
 
-## Prérequis
+1. Installer les dependances : `npm install`.
+2. Lancer un serveur de dev : `npm run dev`.
+3. Construire le site : `npm run build`.
+4. Previsualiser la version de production : `npm run preview`.
 
-- Node.js ≥ 18.20.8
-- npm (ou pnpm/yarn/bun si vous préférez)
+## Deploiement sur GitHub Pages
 
-## Démarrer
+Le workflow `.github/workflows/deploy-gh-pages.yml` publie automatiquement le dossier `dist/` sur GitHub Pages.  
+Lorsque le site est heberge sur une URL de type `https://<utilisateur>.github.io/<repo>/`, Astro doit connaitre l'URL publique complete ainsi que le sous-chemin.  
+Sans ces informations, les assets (CSS, JS, favicon, etc.) sont servis comme s'ils etaient a la racine du domaine, ce qui entraine les erreurs 404 observees dans la console (`_astro/...`, `index....css`, `favicon.svg`, ...).
 
-```bash
-npm install
-npm run dev
-```
-Ouvrir http://localhost:4321/
+### Configurer `astro.config.mjs`
 
-## Créer une nouvelle activité
+Dans ce projet, il faut definir explicitement les proprietes `site` et `base` :
 
-Interactive :
-```bash
-npm run new -- --slug a01-intro-html --title "A01 · Introduction HTML" --level "BTS SIO 1" --duration "1h30" --tags "html,intro"
-```
-
-Depuis un fichier YAML :
-```bash
-npm run new -- --from blueprints/activity.yml
+```js
+export default defineConfig({
+  site: 'https://manastria.github.io/activity-haproxy/',
+  base: '/activity-haproxy/',
+  // ...
+});
 ```
 
-## Structure
+- `site` pointe vers l'URL publique finale (avec la barre oblique finale).
+- `base` correspond au nom du depot (precede d'une barre, avec une barre finale).
 
-```
-src/content/docs/
-├─ index.mdx                    # Accueil
-└─ activities/
-   ├─ index.mdx                 # Page d'intro des activités
-   └─ example-activity/
-      ├─ index.mdx              # Contenu de l'activité
-      └─ assets/                # Images/annexes éventuelles
-```
+Apres avoir ajuste `astro.config.mjs`, committez la modification puis relancez le workflow GitHub Actions.  
+Lors du prochain deploiement, les fichiers CSS et JS seront references avec le bon chemin et ne retourneront plus de 404.
 
-## Déploiement
+### Verifier avant de pousser
 
-### GitHub Pages
+1. `npm run build`
+2. `npm run preview -- --host`
+3. Ouvrir `http://localhost:4321/activity-haproxy/` et confirmer que la console ne signale plus d'erreurs 404.
 
-1. Paramétrer l’URL dans `astro.config.mjs` :
-   - Projet (user.github.io/**repo**): `site` = `https://user.github.io/repo/`, `base` = `/repo/`
-   - Domaine racine: `site` = `https://domaine.tld/`, pas de `base`
-
-2. Activer Pages (Settings → Pages → “GitHub Actions”).  
-3. Pousser sur `main`. Le workflow `.github/workflows/deploy-gh-pages.yml` fera le reste.
-
-### Infomaniak (SFTP/SSH)
-
-- Créer un utilisateur SSH/SFTP (console Infomaniak) et relever **host**, **user** et le **chemin** cible (`/web/…`).  
-- Ajouter les secrets GitHub : `HOST`, `USER`, `SSH_PRIVATE_KEY` (clef au format OpenSSH), `REMOTE_PATH`.  
-- Activer (décommenter si besoin) le job `deploy-infomaniak` dans `.github/workflows/deploy-infomaniak.yml`.
-
-## Licence
-
-MIT © 2025
+Le site est publie sur : <https://manastria.github.io/activity-haproxy/>

@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "python",
             "args": [
-                "D:\\depots\\correcteur_typo\\correcteur_typo.py", // <--- MODIFIEZ CE CHEMIN
+                "${workspaceFolder}/scripts/correcteur_typo.py",
                 "${file}"
             ],
             "presentation": {
@@ -17,6 +17,27 @@
                 "clear": true
             },
             "problemMatcher": []
+        },
+        {
+        "label": "Batch replace (Python)",
+        "type": "shell",
+        "command": "python3",
+        "args": [
+            "${workspaceFolder}/scripts/batch_replace.py",
+            "${file}"
+        ],
+        "problemMatcher": []
+        },
+        {
+        "label": "Batch replace (Python - dry run)",
+        "type": "shell",
+        "command": "python3",
+        "args": [
+            "${workspaceFolder}/scripts/batch_replace.py",
+            "${file}",
+            "--dry-run"
+        ],
+        "problemMatcher": []
         }
     ]
 }
