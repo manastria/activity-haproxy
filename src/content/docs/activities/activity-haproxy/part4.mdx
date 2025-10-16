@@ -95,6 +95,21 @@ Ce bloc s’applique à **tous les frontends et backends**, sauf si vous le red�
 | `option httplog` | Demande un **format de log détaillé** (méthode, code retour, durée…). |
 | `timeout …` | Définit des **délais raisonnables** pour éviter qu’une requête ne bloque. |
 
+
+
+<details>
+<summary><h3> Synthèse : `global` vs `defaults` pour les logs</h3></summary>
+
+C'est important de comprendre la distinction entre les blocs `global` et `defaults` pour que la journalisation fonctionne correctement.
+
+* `global` : Ce bloc définit les **paramètres généraux du processus** HAProxy lui-même. C'est ici que vous indiquez à HAProxy **où envoyer les logs** qu'il génère. La directive `log /dev/log local0 info` établit ce canal de sortie, en pointant vers le système de logs du serveur (journald ou rsyslog). On peut le voir comme le **canal de communication**.
+
+* `defaults` : Ce bloc, quant à lui, définit le **comportement par défaut** de toutes les sections `frontend` et `backend` qui le suivent. La directive `log global` ordonne à ces sections de **réutiliser le canal de log** défini dans le bloc `global`. L'option `option httplog` est également ajoutée ici pour spécifier le **format détaillé** de ces logs, en y incluant des informations essentielles sur les requêtes HTTP. On peut le voir comme le **contenu de la communication**.
+
+En résumé, le bloc `global` ouvre la voie (`/dev/log`), et le bloc `defaults` envoie le contenu (`httplog`) par cette voie. Les deux sont nécessaires pour que les logs de requêtes soient correctement enregistrés.
+</details>
+
+
 :::note
 En résumé :
 
@@ -114,7 +129,7 @@ Vérifiez que le service est bien actif :
 sudo systemctl status haproxy
 ```
 
-### 3.4. 2 Consulter les logs
+### 3.4. Consulter les logs
 
 Sur **Debian 12**, le système de logs par défaut est **systemd-journald**.
 
@@ -133,8 +148,8 @@ sudo journalctl -u haproxy -n 50 -f
 Dans un **autre terminal**, générez quelques requêtes pour voir les logs apparaître :
 
 ```bash
-curl -I [http://node1.example.test/](http://node1.example.test/)
-curl -I [http://node2.example.test/](http://node2.example.test/)
+curl -I http://node1.example.test/
+curl -I http://node2.example.test/
 ```
 
 #### 3.4.2. Rechercher dans une période
@@ -147,7 +162,17 @@ sudo journalctl -u haproxy --since "10 min ago"
 sudo journalctl -u haproxy --since "2025-10-04 09:00" --until "2025-10-04 09:30"
 ```
 
-#### 3.4.3. Si rien n’apparaît : checklist rapide
+#### 3.4.3. Aller directement à la fin du journal
+
+Lorsque vous cherchez les logs les plus récents, il peut être fastidieux de faire défiler le journal jusqu'à la fin. L'option `-e` (raccourci de `--pager-end`) permet d'afficher la sortie directement à la fin du journal.
+
+```bash
+# Affiche les logs HAProxy en partant de la fin
+sudo journalctl -u haproxy -e
+```
+
+
+#### 3.4.4. Si rien n’apparaît : checklist rapide
 
 :::caution
 Si les logs ne s'affichent pas :
@@ -159,7 +184,7 @@ Si les logs ne s'affichent pas :
   * **Confirmez qu'il est actif** : `systemctl is-active haproxy`.
 :::
 
-#### 3.4.4. Rendre les logs persistants (facultatif mais utile)
+#### 3.4.5. Rendre les logs persistants (facultatif mais utile)
 
 Par défaut, `journald` ne conserve pas les logs après un redémarrage. Pour **les conserver après un reboot** :
 
@@ -223,7 +248,7 @@ Pour ce TP, **`journald` suffit** ; le fichier est un **plus** si vous le souhai
 Effectuez une requête depuis un client :
 
 ```bash
-curl -I [http://node1.example.test/](http://node1.example.test/)
+curl -I http://node1.example.test/
 ```
 
 Une ligne de log typique ressemble à ceci :
@@ -310,7 +335,7 @@ LISTEN 0 4096 0.0.0.0:8404 0.0.0.0:*
 Testez l’accès à la page :
 
 ```shell
-curl -I [http://172.25.](http://172.25.)x.2:8404/haproxy?stats
+curl -I http://172.25.x.2:8404/haproxy?stats
 ```
 
 Vous devriez obtenir une réponse `HTTP/1.1 401 Unauthorized`, ce qui est normal car la page est protégée par mot de passe.
@@ -353,7 +378,7 @@ docker stop node2
 Refaites une requête :
 
 ```shell
-curl -I [http://node2.example.test/](http://node2.example.test/)
+curl -I http://node2.example.test/
 ```
 
 ➡️ Le proxy renvoie une erreur `503 Service Unavailable`. Dans la page de stats, `be_node2` passe en **DOWN**.
@@ -382,7 +407,7 @@ backend be_node1
 Testez avec une commande répétée :
 
 ```bash
-watch -n1 'curl -s [http://node1.example.test/](http://node1.example.test/) | grep "Server"'
+watch -n1 'curl -s http://node1.example.test/ | grep "Server"'
 ```
 
 ➡️ Vous devriez voir les réponses alterner entre `node1` et `node2`.
