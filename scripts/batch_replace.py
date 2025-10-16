@@ -5,10 +5,12 @@ from pathlib import Path
 rx_backslash_lt = re.compile(r'\\<')
 rx_backslash_gt = re.compile(r'\\>')
 rx_br = re.compile(r'<br\s*/?>', re.IGNORECASE)
+rx_backslash_dot = re.compile(r'\\\.')  # correspond à "\."
 
 def transform(text: str) -> str:
     text = rx_backslash_lt.sub('<', text)
     text = rx_backslash_gt.sub('>', text)
+    text = rx_backslash_dot.sub('.', text) 
     text = rx_br.sub('', text)
     return text
 
