@@ -40,7 +40,7 @@ Dans `/etc/haproxy/haproxy.cfg`, trouvez la section `frontend fe_http` et rempla
 ```ini
 frontend fe_http
   bind :80
-  http-request redirect scheme https unless { ssl_fc }
+  http-request redirect scheme https code 301 unless { ssl_fc }
 ````
 
 **Explication :**
@@ -53,14 +53,14 @@ frontend fe_http
 **Test :**
 
 ```bash
-curl -I [http://node1.example.test/](http://node1.example.test/)
+curl -I http://node1.example.test/
 ```
 
 Réponse attendue :
 
 ```http
 HTTP/1.1 301 Moved Permanently
-Location: [https://node1.example.test/](https://node1.example.test/)
+Location: https://node1.example.test/
 ```
 
 :::tip
@@ -99,7 +99,7 @@ Toujours dans `frontend fe_https`, ajoutez après vos ACL :
 **Test :**
 
 ```bash
-curl -I [https://node1.example.test/](https://node1.example.test/)
+curl -I https://node1.example.test/
 ```
 
 ➡️ Les en-têtes doivent apparaître dans la réponse.
@@ -155,7 +155,7 @@ HAProxy peut compresser les réponses (texte, HTML, CSS, JSON…). Ajoutez ceci 
 **Test :**
 
 ```bash
-curl -I --compressed [https://node1.example.test/](https://node1.example.test/)
+curl -I --compressed https://node1.example.test/
 ```
 
 Le header `Content-Encoding: gzip` doit apparaître.
@@ -218,7 +218,7 @@ Vérifiez qu’il existe : cela limite automatiquement la taille des journaux e
 1.  **Redirection HTTPS**
 
     ```bash
-    curl -I [http://node1.example.test/](http://node1.example.test/)
+    curl -I http://node1.example.test/
     ```
 
     → doit renvoyer `301` vers `https://…`
@@ -226,7 +226,7 @@ Vérifiez qu’il existe : cela limite automatiquement la taille des journaux e
 2.  **En-têtes de sécurité**
 
     ```bash
-    curl -I [https://node1.example.test/](https://node1.example.test/)
+    curl -I https://node1.example.test/
     ```
 
     → `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options` présents.
@@ -234,7 +234,7 @@ Vérifiez qu’il existe : cela limite automatiquement la taille des journaux e
 3.  **Filtrage `/admin`**
 
     ```bash
-    curl -I [https://node1.example.test/admin](https://node1.example.test/admin)
+    curl -I https://node1.example.test/admin
     ```
 
     → 403 depuis un réseau non-autorisé.
@@ -242,7 +242,7 @@ Vérifiez qu’il existe : cela limite automatiquement la taille des journaux e
 4.  **Compression**
 
     ```bash
-    curl -I --compressed [https://node1.example.test/](https://node1.example.test/)
+    curl -I --compressed https://node1.example.test/
     ```
 
     → `Content-Encoding: gzip`.

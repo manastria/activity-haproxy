@@ -279,8 +279,8 @@ L'état doit être `active (running)`.
 Ici, on simule le nom du site avec l'en-tête `Host:` de `curl`.
 
 ```bash
-curl -H "Host: node1.example.test" [http://172.25.](http://172.25.)X.2/
-curl -H "Host: node2.example.test" [http://172.25.](http://172.25.)X.2/
+curl -H "Host: node1.example.test" http://172.25.X.2/
+curl -H "Host: node2.example.test" http://172.25.X.2/
 ```
 
 </TabItem>
@@ -297,8 +297,8 @@ Si vous avez déjà ajouté les noms dans votre fichier `/etc/hosts` ou votre DN
 Alors vous pouvez tester directement :
 
 ```bash
-curl [http://node1.example.test](http://node1.example.test)
-curl [http://node2.example.test](http://node2.example.test)
+curl http://node1.example.test
+curl http://node2.example.test
 ```
 
 </TabItem>
@@ -523,7 +523,7 @@ En HTTPS, le **SNI** doit correspondre au nom demandé. L'option `--resolve` de 
 # Ajout au fichier hosts pour le test
 echo "172.25.X.2  newsite.example.test" | sudo tee -a /etc/hosts
 # Test du nouveau sous-domaine avec curl
-curl -I [https://newsite.example.test](https://newsite.example.test)
+curl -I https://newsite.example.test
 # Attendu : 200/301/302 SANS erreur de certificat (pas de -k)
 ```
 
@@ -655,7 +655,7 @@ Répétez la commande pour `node2.example.test` pour vérifier son propre certif
 Vérifiez maintenant qu'un sous-domaine non listé provoque une erreur.
 
 ```bash
-curl --resolve newsite.example.test:443:172.25.X.2 [https://newsite.example.test](https://newsite.example.test)
+curl --resolve newsite.example.test:443:172.25.X.2 https://newsite.example.test
 ```
 
 La commande doit **échouer** car le certificat n'est plus valide pour ce nom.
