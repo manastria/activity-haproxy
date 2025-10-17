@@ -84,7 +84,7 @@ sudo systemctl restart haproxy
 Lancez quelques requêtes successives vers le **site node1** (qui maintenant pointe vers 2 serveurs derrière le même backend) :
 
 ```bash
-for i in {1..10}; do curl -s [http://node1.example.test/](http://node1.example.test/) | grep -E "node1|node2"; done
+for i in {1..10}; do curl -s http://node1.example.test/ | grep -E "node1|node2"; done
 ```
 
 **Attendu** : vous devez voir alterner des réponses « node1 » et « node2 » (selon ce que vos pages affichent).
@@ -199,7 +199,7 @@ Pendant 10 s, HAProxy **augmente progressivement** la part de trafic vers `n2`.
 1.  **Répartition** :
 
     ```bash
-    for i in {1..8}; do curl -s [http://node1.example.test/](http://node1.example.test/) | grep -E "node1|node2"; done
+    for i in {1..8}; do curl -s http://node1.example.test/ | grep -E "node1|node2"; done
     ```
 
     → alternance visible (ou pondérée avec `weight`).
